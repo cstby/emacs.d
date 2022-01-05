@@ -175,12 +175,12 @@
 
 (use-package centaur-tabs
   :demand t
-  :bind
-  ("C-<tab>" . centaur-tabs-forward)
-  ("C-S-<tab>" . centaur-tabs-backward)
   :config
   ;; If centaur tabs isn't enabled first, icons will not render.
   (centaur-tabs-mode 1)
+  ;; The function bind-key* keeps other modes from clobbering the binding.
+  (bind-key* "C-<tab>" 'centaur-tabs-forward)
+  (bind-key* "C-S-<tab>" 'centaur-tabs-backward)
   (setq centaur-tabs-cycle-scope 'tabs)
   (setq centaur-tabs-set-icons t)
   (setq centaur-tabs-set-close-button nil)
@@ -449,7 +449,9 @@
 
 (use-package magit
   :config
-  (setq magit-diff-refine-hunk 'all))
+  (setq magit-diff-refine-hunk 'all)
+  (define-key magit-section-mode-map [remap forward-paragraph] 'magit-section-forward)
+  (define-key magit-section-mode-map [remap backward-paragraph] 'magit-section-backward))
 
 (use-package marginalia
   :bind (:map minibuffer-local-map
