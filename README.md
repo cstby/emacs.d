@@ -32,6 +32,8 @@ When setting up Emacs on a new machine, I make sure to install the following dep
 
 - [The Silver Searcher](https://github.com/ggreer/the_silver_searcher)
 
+- [Clojure-LSP](https://clojure-lsp.io/)
+
 - [All the Icons](https://github.com/domtronn/all-the-icons.el) (included, but needs an extra installation step)
 
 - [Monego Font](https://github.com/cseelus/monego)

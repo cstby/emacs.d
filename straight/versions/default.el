@@ -43,6 +43,7 @@
  ("imenu-anywhere" . "06ec33d79e33edf01b9118aead1eabeae8ee08b1")
  ("let-alist" . "592553db5929b54db40af0df90c5add0aaca045b")
  ("lispy" . "a2e539898668749ce07a97b1bb5fc4b3e824cfd5")
+ ("lsp-mode" . "a82a4fa3467ec918273ab65d48c5c7d2dbfaec74")
  ("magit" . "2e73b66c2980abb9211d9881a8710c8ac5a33184")
  ("map" . "3d80a6d7cdc7d9e5760290fa95db4da992612837")
  ("marginalia" . "9229d88ae4757f3439e81f51799758c009838cb4")

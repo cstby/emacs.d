@@ -377,7 +377,7 @@
    "jo" 'dumb-jump-go-other-window
    "jp" 'dumb-jump-go-prompt
    "jl" 'dumb-jump-quick-look
-   "l" 'lispy-mode
+   "l" 'lsp-command-map
    "n" '(:which-key "norby")
    "nd" 'norby-dev
    "np" 'norby-prod
@@ -448,6 +448,21 @@
   (add-hook 'racket-mode-hook #'lispy-mode)
   ;; Enabling cider compatibility shows a warning if not placed here.
   (setq lispy-compat 'cider))
+
+(use-package lsp-mode
+  :hook ((clojure-mode . lsp)
+         (clojurec-mode . lsp)
+         (clojurescript-mode . lsp)
+         (lsp-mode . lsp-enable-which-key-integration))
+  :config
+  (setq lsp-keymap-prefix "C-c l")
+  (setq lsp-enable-indentation nil)
+  (fset 'lsp-command-map lsp-command-map)
+  (dolist (m '(clojure-mode
+               clojurec-mode
+               clojurescript-mode
+               clojurex-mode))
+    (add-to-list 'lsp-language-id-configuration `(,m . "clojure"))))
 
 (use-package magit
   :config
