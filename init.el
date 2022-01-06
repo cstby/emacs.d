@@ -76,7 +76,14 @@
             (goto-char (point-min))
             (while (re-search-forward "\n\n\n+" nil "move")
               (replace-match "\n\n")))))))
-  (add-hook 'before-save-hook 'clean-empty-lines))
+  (add-hook 'before-save-hook 'clean-empty-lines)
+  (defun reload-theme ()
+    (interactive)
+    (let ((themes custom-enabled-themes))
+      (progn
+	(mapc #'disable-theme themes)
+	(mapc (lambda (theme) (load-theme theme t)) themes)
+	(message "Reloaded themes: %S" themes)))))
 
 (use-package autorevert
   :straight (:type built-in)
