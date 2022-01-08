@@ -31,7 +31,7 @@
 (use-package emacs
   :straight (:type built-in)
   :config
-  (setq-default fill-column 100)
+  (setq-default fill-column 80)
   ;; I use Clojure more often than elisp (default).
   (setq inhibit-splash-screen t
         initial-major-mode 'clojure-mode
