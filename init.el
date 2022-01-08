@@ -145,6 +145,11 @@
   :config
   (add-hook 'text-mode-hook #'visual-line-mode))
 
+(use-package whitespace
+  :straight (:type built-in)
+  :config
+  (add-hook 'before-save-hook 'whitespace-cleanup))
+
 ;; Packages
 ;;-------------------------------------------------
 
