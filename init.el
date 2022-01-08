@@ -39,8 +39,8 @@
   ;; The sound is an annoyance.
   (setq ring-bell-function 'ignore)
   ;; Never use tabs but render them according to elisp convention.
-  (setq indent-tabs-mode nil
-        tab-width 2)
+  (setq-default indent-tabs-mode nil
+    tab-width 2)
   ;; Typing out yes/no is an inconvenience.
   (fset 'yes-or-no-p 'y-or-n-p)
   (global-set-key (kbd "C-w") #'kill-this-buffer)
