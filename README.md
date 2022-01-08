@@ -18,7 +18,7 @@ This repository contains my personal configuration files for [GNU Emacs](https:/
 - Mnemonic key bindings thanks to [general](https://github.com/noctuid/general.el)
 - A focus on [Clojure](https://clojure.org/) and [Emacs Lisp](https://en.wikipedia.org/wiki/Emacs_Lisp)
 - Cross-platform (WIP)
-- Support for running Emacs as daemon (WIP)
+- Support for running Emacs as daemon
 
 ### External Dependencies
 

@@ -81,9 +81,13 @@
     (interactive)
     (let ((themes custom-enabled-themes))
       (progn
-	(mapc #'disable-theme themes)
-	(mapc (lambda (theme) (load-theme theme t)) themes)
-	(message "Reloaded themes: %S" themes)))))
+        (mapc #'disable-theme themes)
+        (mapc (lambda (theme) (load-theme theme t)) themes)
+        (message "Reloaded themes: %S" themes))))
+  (defun my-focus-new-client-frame (newly-created-frame)
+    (when (daemonp)
+      (select-frame-set-input-focus newly-created-frame)))
+  (add-hook 'after-make-frame-functions #'my-focus-new-client-frame))
 
 (use-package autorevert
   :straight (:type built-in)
