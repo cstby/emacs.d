@@ -214,6 +214,8 @@
         cider-switch-to-repl-on-insert nil)
   ;; Run namespace tests whenever file is loaded.
   (cider-auto-test-mode 1)
+  ;; Font lock
+  (setq cider-font-lock-dynamically nil)
   ;; Test reports don't reliably render in the echo area.
   (setq cider-test-show-report-on-success t)
   (add-hook 'cider-mode-hook #'eldoc-mode)
