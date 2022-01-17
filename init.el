@@ -560,14 +560,14 @@
   :config
   (load "~/clj-slack/swing-clj"))
 
-(use-package solo-jazz-theme
-  :straight (:local-repo "~/.emacs.d/my-packages/solo-jazz-emacs-theme/")
-  :config
-  ;; Adding the theme path allows me to hot-reload the theme.
-  (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solo-jazz-emacs-theme/")
-  (load-theme 'solo-jazz t)
-  (advice-add 'rainbow-turn-on :after #'solo-jazz-theme-rainbow-turn-on)
-  (advice-add 'rainbow-turn-off :after #'solo-jazz-theme-rainbow-turn-off))
+;; (use-package solo-jazz-theme
+;;   :straight (:local-repo "~/.emacs.d/my-packages/solo-jazz-emacs-theme/")
+;;   :config)
+;; Adding the theme path allows me to hot-reload the theme.
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solo-jazz-emacs-theme/")
+(load-theme 'solo-jazz t)
+(advice-add 'rainbow-turn-on :after #'solo-jazz-theme-rainbow-turn-on)
+(advice-add 'rainbow-turn-off :after #'solo-jazz-theme-rainbow-turn-off)
 
 (use-package sotclojure
   :config
