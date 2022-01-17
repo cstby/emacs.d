@@ -321,6 +321,13 @@
 
 (use-package fixed-pitch
   :straight (:local-repo "~/.emacs.d/my-packages/fixed-pitch/")
+  :custom
+  (fixed-pitch-whitelist-hooks
+   '(cider-mode-hook
+     cider-docview-mode-hook
+     cider-popup-buffer-mode-hook
+     cider-test-report-mode-hook
+     cider-repl-mode-hook))
   :config
   (setq-default cursor-type 'bar))
 
