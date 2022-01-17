@@ -206,7 +206,7 @@
   ;; Make eval-to-comment easier to handle.
   (setq cider-comment-prefix "#_"
         cider-comment-continued-prefix "   "
-        cider-comment-postfix "")
+        cider-comment-postfix "\n")
   ;; I mostly interact with the repl from within the file buffer.
   (setq nrepl-hide-special-buffers t
         cider-repl-pop-to-buffer-on-connect 'display-only
