@@ -464,6 +464,8 @@
          (clojurescript-mode . lsp)
          (lsp-mode . lsp-enable-which-key-integration))
   :config
+  ;; the sideline is super annoying
+  (setq lsp-ui-sideline-enable nil)
   (setq lsp-keymap-prefix "C-c l")
   (setq lsp-enable-indentation nil)
   (fset 'lsp-command-map lsp-command-map)
