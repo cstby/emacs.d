@@ -438,8 +438,8 @@
   ;; lispy-mode-map is an ugly necessity.
   (define-key lispy-mode-map (kbd "<M-right>") 'windmove-right)
   (define-key lispy-mode-map (kbd "<M-left>") 'windmove-left)
-  (define-key lispy-mode-map (kbd "<home>") 'lispy-left)
-  (define-key lispy-mode-map (kbd "<end>") 'lispy-right)
+  (define-key lispy-mode-map (kbd "C-a") 'lispy-left)
+  (define-key lispy-mode-map (kbd "C-e") 'lispy-right)
   (define-key lispy-mode-map (kbd "<M-home>") 'lispy-beginning-of-defun)
   (define-key lispy-mode-map (kbd "<M-end>") 'lispy-end-of-defun)
   (define-key lispy-mode-map (kbd "C-)") 'lispy-forward-slurp-sexp)
