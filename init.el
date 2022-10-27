@@ -473,6 +473,8 @@
                clojurex-mode))
     (add-to-list 'lsp-language-id-configuration `(,m . "clojure"))))
 
+(use-package lsp-ui)
+
 (use-package magit
   :config
   (setq magit-diff-refine-hunk 'all)
