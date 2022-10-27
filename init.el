@@ -623,6 +623,8 @@
 
 (use-package xref)
 
+(use-package yaml-mode)
+
 (use-package zenburn-theme)
 
 (provide 'init)
