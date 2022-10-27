@@ -327,7 +327,9 @@
      cider-docview-mode-hook
      cider-popup-buffer-mode-hook
      cider-test-report-mode-hook
-     cider-repl-mode-hook))
+     cider-repl-mode-hook
+     conf-javaprop-mode-hook
+     conf-unix-mode-hook))
   :config
   (setq-default cursor-type 'bar))
 
