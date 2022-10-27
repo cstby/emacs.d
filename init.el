@@ -555,11 +555,6 @@
 (use-package selectrum-prescient
   :config (selectrum-prescient-mode 1))
 
-(use-package slack-slash
-  :straight (:type git :host github :repo "cstby/emacs-slack-slash")
-  :config
-  (load "~/clj-slack/swing-clj"))
-
 ;; (use-package solo-jazz-theme
 ;;   :straight (:local-repo "~/.emacs.d/my-packages/solo-jazz-emacs-theme/")
 ;;   :config)
