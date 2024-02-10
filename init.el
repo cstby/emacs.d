@@ -568,17 +568,17 @@
         recentf-auto-cleanup 'never)
   (recentf-mode 1))
 
-(use-package selectrum
-  :config
-  (setq selectrum-should-sort-p t
-        selectrum-count-style 'current/matches)
-  ;; Enable cua bindings in minibuffer.
-  (define-key selectrum-minibuffer-map [prior] #'selectrum-previous-page)
-  (define-key selectrum-minibuffer-map [next] #'selectrum-next-page)
-  (selectrum-mode 1))
+;; (use-package selectrum
+;;   :config
+;;   (setq selectrum-should-sort-p t
+;;         selectrum-count-style 'current/matches)
+;;   ;; Enable cua bindings in minibuffer.
+;;   (define-key selectrum-minibuffer-map [prior] #'selectrum-previous-page)
+;;   (define-key selectrum-minibuffer-map [next] #'selectrum-next-page)
+;;   (selectrum-mode 1))
 
-(use-package selectrum-prescient
-  :config (selectrum-prescient-mode 1))
+;; (use-package selectrum-prescient
+;;   :config (selectrum-prescient-mode 1))
 
 ;; (use-package solo-jazz-theme
 ;;   :straight (:local-repo "~/.emacs.d/my-packages/solo-jazz-emacs-theme/")
@@ -609,6 +609,23 @@
   (global-unset-key (kbd "C-z"))
   (global-set-key (kbd "C-z") 'undo-fu-only-undo)
   (global-set-key (kbd "C-S-z") 'undo-fu-only-redo))
+
+(use-package vertico
+  :init
+  (vertico-mode)
+
+  ;; Different scroll margin
+  ;; (setq vertico-scroll-margin 0)
+
+  ;; Show more candidates
+  ;; (setq vertico-count 20)
+
+  ;; Grow and shrink the Vertico minibuffer
+  ;; (setq vertico-resize t)
+
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  ;; (setq vertico-cycle t)
+  )
 
 (use-package visual-fill-column
   :config
