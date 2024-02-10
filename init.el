@@ -521,6 +521,12 @@
          ("C-<" . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)))
 
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+
 (use-package org
   :init
   (add-hook 'org-mode-hook #'variable-pitch-mode)
