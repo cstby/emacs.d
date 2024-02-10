@@ -532,6 +532,14 @@
   (setq org-bullets-bullet-list '("⮚"))
   (add-hook 'org-mode-hook #'org-bullets-mode))
 
+(use-package peep-dired
+  :config
+  ;; (setq peep-dired-cleanup-eagerly t)
+  ;; I use dired-subtree to look into directories.
+  (setq peep-dired-enable-on-directories nil)
+  (bind-keys :map dired-mode-map
+             ("V" . peep-dired)))
+
 (use-package package-lint)
 
 (use-package prescient
