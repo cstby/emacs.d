@@ -619,6 +619,9 @@
 (use-package vertico
   :init
   (vertico-mode)
+  :config
+  (define-key vertico-map [next] #'vertico-scroll-up)
+  (define-key vertico-map [prior] #'vertico-scroll-down)
 
   ;; Different scroll margin
   ;; (setq vertico-scroll-margin 0)
