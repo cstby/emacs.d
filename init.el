@@ -160,7 +160,10 @@
 (use-package ag)
 
 (use-package aggressive-indent
-  :config (global-aggressive-indent-mode 1))
+  :config
+  (global-aggressive-indent-mode 1)
+  (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
+  (add-to-list 'aggressive-indent-excluded-modes 'js-mode))
 
 (use-package all-the-icons)
 
