@@ -279,6 +279,14 @@
   (setq cua-remap-control-z nil)
   (cua-mode 1))
 
+(use-package dired-sidebar
+  :bind (("C-x C-n" . dired-sidebar-toggle-sidebar))
+  :ensure t
+  :commands (dired-sidebar-toggle-sidebar)
+  :config
+  (setq dired-sidebar-should-follow-file t)
+  (setq dired-sidebar-subtree-line-prefix "__"))
+
 (use-package dired-subtree
   :config
   (bind-keys :map dired-mode-map
