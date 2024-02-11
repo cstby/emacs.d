@@ -405,9 +405,6 @@
    "jp" 'dumb-jump-go-prompt
    "jl" 'dumb-jump-quick-look
    "l" 'lsp-command-map
-   "n" '(:which-key "norby")
-   "nd" 'norby-dev
-   "np" 'norby-prod
    "p" 'projectile-command-map
    "w" '(:which-key "window")
    "wb" 'balance-windows
