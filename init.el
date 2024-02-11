@@ -112,6 +112,35 @@
   (custom-set-faces '(fixed-pitch ((t (:family "Monego" :height 105))))
                     '(variable-pitch ((t (:family "Crimson Pro" :height 140))))))
 
+(use-package eglot
+  :straight (:type built-in)
+  :hook ((( clojure-mode clojurec-mode clojurescript-mode
+            java-mode scala-mode)
+          . eglot-ensure)
+         ((cider-mode eglot-managed-mode) . eglot-disable-in-cider))
+  :preface
+  (defun eglot-disable-in-cider ()
+    (when (eglot-managed-p)
+      (if (bound-and-true-p cider-mode)
+          (progn
+            (remove-hook 'completion-at-point-functions 'eglot-completion-at-point t)
+            (remove-hook 'xref-backend-functions 'eglot-xref-backend t))
+        (add-hook 'completion-at-point-functions 'eglot-completion-at-point nil t)
+        (add-hook 'xref-backend-functions 'eglot-xref-backend nil t))))
+  :custom
+  (eglot-autoshutdown t)
+  (eglot-events-buffer-size 0)
+  (eglot-extend-to-xref nil)
+  (eglot-ignored-server-capabilities
+   '(:hoverProvider
+     :documentHighlightProvider
+     :documentFormattingProvider
+     :documentRangeFormattingProvider
+     :documentOnTypeFormattingProvider
+     :colorProvider
+     :foldingRangeProvider))
+  (eglot-stay-out-of '(yasnippet)))
+
 (use-package dired
   :straight (:type built-in)
   :hook (dired-mode . dired-hide-details-mode)
@@ -399,7 +428,6 @@
    "jo" 'dumb-jump-go-other-window
    "jp" 'dumb-jump-go-prompt
    "jl" 'dumb-jump-quick-look
-   "l" 'lsp-command-map
    "w" '(:which-key "window")
    "wb" 'balance-windows
    "wo" 'switch-to-buffer-other-window
@@ -469,25 +497,6 @@
   (add-hook 'racket-mode-hook #'lispy-mode)
   ;; Enabling cider compatibility shows a warning if not placed here.
   (setq lispy-compat 'cider))
-
-;; (use-package lsp-mode
-;;   :hook ((clojure-mode . lsp)
-;;          (clojurec-mode . lsp)
-;;          (clojurescript-mode . lsp)
-;;          (lsp-mode . lsp-enable-which-key-integration))
-;;   :config
-;;   ;; the sideline is super annoying
-;;   (setq lsp-ui-sideline-enable nil)
-;;   (setq lsp-keymap-prefix "C-c l")
-;;   (setq lsp-enable-indentation nil)
-;;   (fset 'lsp-command-map lsp-command-map)
-;;   (dolist (m '(clojure-mode
-;;                clojurec-mode
-;;                clojurescript-mode
-;;                clojurex-mode))
-;;     (add-to-list 'lsp-language-id-configuration `(,m . "clojure"))))
-
-;; (use-package lsp-ui)
 
 (use-package magit
   :config
