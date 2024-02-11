@@ -519,6 +519,8 @@
   (setq markdown-header-scaling nil
         markdown-fontify-code-blocks-natively t))
 
+(use-package modus-themes)
+
 (use-package multiple-cursors
   :bind (("C->" . mc/mark-next-like-this)
          ("C-<" . mc/mark-previous-like-this)
