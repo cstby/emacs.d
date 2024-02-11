@@ -489,8 +489,6 @@
   ;; Unfortunately, no general lisp hook exists.
   (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
   (add-hook 'clojure-mode-hook #'lispy-mode)
-  (add-hook 'scheme-mode-hook #'lispy-mode)
-  (add-hook 'racket-mode-hook #'lispy-mode)
   ;; Enabling cider compatibility shows a warning if not placed here.
   (setq lispy-compat 'cider))
 
