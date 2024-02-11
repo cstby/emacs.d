@@ -165,16 +165,6 @@
   (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
   (add-to-list 'aggressive-indent-excluded-modes 'js-mode))
 
-(use-package all-the-icons)
-
-(use-package all-the-icons-dired
-  :config
-  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
-  (setq all-the-icons-dired-monochrome nil))
-
-(use-package all-the-icons-completion
-  :config
-  (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup))
 
 (use-package centaur-tabs
   :demand t
@@ -186,6 +176,7 @@
   (bind-key* "C-S-<tab>" 'centaur-tabs-backward)
   (setq centaur-tabs-cycle-scope 'tabs)
   (setq centaur-tabs-set-icons t)
+  (setq centaur-tabs-icon-type 'nerd-icons)
   (setq centaur-tabs-set-close-button nil)
   (setq centaur-tabs-set-bar nil)
   (defun centaur-tabs-buffer-groups ()
@@ -520,6 +511,22 @@
   :bind (("C->" . mc/mark-next-like-this)
          ("C-<" . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)))
+
+(use-package nerd-icons)
+
+(use-package nerd-icons-corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
+(use-package nerd-icons-completion
+  ;; :after marginalia
+  :config
+  (nerd-icons-completion-mode)
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package nerd-icons-dired
+  :hook
+  (dired-mode . nerd-icons-dired-mode))
 
 (use-package orderless
   :ensure t
