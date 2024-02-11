@@ -250,25 +250,36 @@
 
 (use-package clojure-snippets)
 
-(use-package company
-  :config
-  (setq company-idle-delay 0
-        company-show-numbers t
-        company-tooltip-align-annotations t
-        company-minimum-prefix-length 2)
-  (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
-  (global-company-mode 1))
-
-(use-package company-prescient
-  :config (company-prescient-mode 1))
-
-(use-package company-quickhelp
-  :config (company-quickhelp-mode 1))
-
 (use-package consult
   :bind
   (("C-." . consult-imenu-multi))
   (("C-x b" . consult-buffer)))
+
+(use-package corfu
+  :straight (:files (:defaults "extensions/*")
+                    :includes (corfu-info corfu-history))
+  :custom
+  (corfu-auto t)
+  (corfu-auto-delay 0)
+  (corfu-auto-prefix 2)
+  (corfu-popupinfo-delay 0.2)
+  :init
+  (global-corfu-mode)
+  (corfu-echo-mode 1)
+  (corfu-popupinfo-mode 1)
+  :config
+  (defun corfu-enable-in-minibuffer ()
+    "Enable Corfu in the minibuffer."
+    (when (local-variable-p 'completion-at-point-functions)
+      ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
+      (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
+                  corfu-popupinfo-delay nil)
+      (corfu-mode 1))))
+
+(use-package corfu-prescient
+  :config
+  (setq corfu-prescient-completion-styles '(orderless basic))
+  (corfu-prescient-mode 1))
 
 (use-package cua-base
   ;; Must be loaded after general so that C-c isn't clobbered.
@@ -647,6 +658,11 @@
   ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
   ;; (setq vertico-cycle t)
   )
+
+(use-package vertico-prescient
+  :config
+  (setq vertico-prescient-completion-styles '(orderless basic))
+  (vertico-prescient-mode t))
 
 (use-package visual-fill-column
   :config
