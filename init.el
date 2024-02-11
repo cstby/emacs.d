@@ -418,8 +418,6 @@
 (use-package hungry-delete
   :config (global-hungry-delete-mode 1))
 
-(use-package imenu-anywhere)
-
 (use-package lispy
   :config
   (defun lispy-out (arg)
