@@ -23,8 +23,8 @@
                 (tool-bar-lines       . 0)
                 (menu-bar-lines       . 0)
                 (vertical-scroll-bars . nil)
-                (left-fringe          . 0)
-                (right-fringe         . 0)
+                ;; (left-fringe          . 0)
+                ;; (right-fringe         . 0)
                 (font                 . "Cabin-12")))
 
 ;; Configure user interface elements specific to macOS.
