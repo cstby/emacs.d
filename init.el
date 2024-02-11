@@ -195,7 +195,6 @@
             ((string-prefix-p "*" (buffer-name)) '("Misc"))
             ((condition-case _err (projectile-project-root) (error nil)) (list (projectile-project-name)))
             ((memq major-mode '(emacs-lisp-mode)) '("Elisp"))
-            ((memq major-mode '(org-mode calendar-mode diary-mode)) '("Org"))
             ((memq major-mode '(dired-mode)) '("Dir"))
             (t '("Other"))))
       (symbol-value 'centaur-tabs-projectile-buffer-group-calc))))
@@ -543,28 +542,6 @@
   :custom
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
-
-(use-package org
-  :init
-  (add-hook 'org-mode-hook #'variable-pitch-mode)
-  :config
-  ;; Keep my conventional selection please.
-  (setq org-support-shift-select t)
-  ;; Hide all markup.
-  (setq org-hide-emphasis-markers t)
-  ;; Give me back my keybindings please.
-  (define-key org-mode-map (kbd "C-<tab>") nil)
-  (define-key org-mode-map (kbd "M-<right>") nil)
-  (define-key org-mode-map (kbd "M-<left>") nil)
-  ;; Don't fold content automatically.
-  (setq org-startup-folded nil)
-  ;; Align body text with header, which is indented.
-  (setq org-startup-indented t))
-
-(use-package org-bullets
-  :config
-  (setq org-bullets-bullet-list '("⮚"))
-  (add-hook 'org-mode-hook #'org-bullets-mode))
 
 (use-package peep-dired
   :config
