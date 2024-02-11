@@ -470,24 +470,24 @@
   ;; Enabling cider compatibility shows a warning if not placed here.
   (setq lispy-compat 'cider))
 
-(use-package lsp-mode
-  :hook ((clojure-mode . lsp)
-         (clojurec-mode . lsp)
-         (clojurescript-mode . lsp)
-         (lsp-mode . lsp-enable-which-key-integration))
-  :config
-  ;; the sideline is super annoying
-  (setq lsp-ui-sideline-enable nil)
-  (setq lsp-keymap-prefix "C-c l")
-  (setq lsp-enable-indentation nil)
-  (fset 'lsp-command-map lsp-command-map)
-  (dolist (m '(clojure-mode
-               clojurec-mode
-               clojurescript-mode
-               clojurex-mode))
-    (add-to-list 'lsp-language-id-configuration `(,m . "clojure"))))
+;; (use-package lsp-mode
+;;   :hook ((clojure-mode . lsp)
+;;          (clojurec-mode . lsp)
+;;          (clojurescript-mode . lsp)
+;;          (lsp-mode . lsp-enable-which-key-integration))
+;;   :config
+;;   ;; the sideline is super annoying
+;;   (setq lsp-ui-sideline-enable nil)
+;;   (setq lsp-keymap-prefix "C-c l")
+;;   (setq lsp-enable-indentation nil)
+;;   (fset 'lsp-command-map lsp-command-map)
+;;   (dolist (m '(clojure-mode
+;;                clojurec-mode
+;;                clojurescript-mode
+;;                clojurex-mode))
+;;     (add-to-list 'lsp-language-id-configuration `(,m . "clojure"))))
 
-(use-package lsp-ui)
+;; (use-package lsp-ui)
 
 (use-package magit
   :config
