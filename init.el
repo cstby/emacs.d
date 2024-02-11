@@ -34,6 +34,9 @@
 (use-package emacs
   :straight (:type built-in)
   :config
+
+  (pixel-scroll-precision-mode 1)
+
   (setq-default fill-column 80)
   ;; I use Clojure more often than elisp (default).
   (setq inhibit-splash-screen t
@@ -156,13 +159,6 @@
   ;; Don't let backups and autosaves clutter my directories .
   (setq backup-directory-alist `((".*" . ,temporary-file-directory))
         auto-save-file-name-transforms `((".*" ,temporary-file-directory t))))
-
-(use-package mwheel
-  :straight (:type built-in)
-  :config
-  ;; Scroll one line at a time rather than five.
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
-        mouse-wheel-progressive-speed nil))
 
 (use-package paren
   :straight (:type built-in)
