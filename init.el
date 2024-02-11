@@ -405,7 +405,6 @@
    "jp" 'dumb-jump-go-prompt
    "jl" 'dumb-jump-quick-look
    "l" 'lsp-command-map
-   "p" 'projectile-command-map
    "w" '(:which-key "window")
    "wb" 'balance-windows
    "wo" 'switch-to-buffer-other-window
@@ -581,9 +580,6 @@
 
 (use-package prescient
   :config (prescient-persist-mode 1))
-
-(use-package projectile
-  :config (projectile-mode 1))
 
 (use-package rainbow-mode
   :hook prog-mode)
