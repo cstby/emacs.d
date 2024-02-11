@@ -319,10 +319,6 @@
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate))
 
-(use-package easy-kill
-  :config
-  (global-set-key [remap kill-ring-save] 'easy-kill))
-
 (use-package embark
   :bind
   (("C-`" . embark-act)
