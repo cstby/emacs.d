@@ -7,7 +7,7 @@
 
 ;;; Code:
 
-;; Bootstrap straight.el package manager.
+;; Bootstrap straight.el if it's not already present.
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name
@@ -28,40 +28,54 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
-;; Built-in packages
-;;-------------------------------------------------
+;;; Built-in packages
+;;;-------------------------------------------------
 
 (use-package emacs
   :straight (:type built-in)
   :config
 
+  ;; Add my local binaries
+  (add-to-list 'exec-path "~/.local/bin")
+
   (pixel-scroll-precision-mode 1)
 
   (setq-default fill-column 80)
+
   ;; I use Clojure more often than elisp (default).
   (setq inhibit-splash-screen t
         initial-major-mode 'clojure-mode
         initial-scratch-message ";; This *scratch* buffer is for Clojure.\n\n")
-  ;; The sound is an annoyance.
+
   (setq ring-bell-function 'ignore)
+
   ;; Never use tabs but render them according to elisp convention.
   (setq-default indent-tabs-mode nil
-    tab-width 2)
+                tab-width 2)
+
   ;; Typing out yes/no is an inconvenience.
   (fset 'yes-or-no-p 'y-or-n-p)
+
   (global-set-key (kbd "C-w") #'kill-this-buffer)
   (global-set-key (kbd "M-k") #'kill-to-end-of-buffer)
+
   ;; Move to where text begins rather than the beginning of the line.
   (global-set-key [home] 'beginning-of-line-text)
+
   ;; Fix shift-tab on Linux.
   (define-key function-key-map [(control shift iso-lefttab)] [(control shift tab)])
+
   ;; Tailor command maps to Kinesis Advantage.
   (define-key key-translation-map (kbd "C-SPC") (kbd "C-c"))
   (define-key key-translation-map (kbd "C-<return>") (kbd "C-x"))
+
+;;; Custom functions
+
   (defun kill-to-end-of-buffer ()
     "Delete everything after defun at point."
     (interactive)
     (delete-region (cdr (bounds-of-thing-at-point 'defun)) (point-max)))
+
   (defun focus-window ()
     "Focus to single window or unfocus to original state."
     (interactive)
@@ -70,6 +84,7 @@
       (progn
         (set-register '_ (list (current-window-configuration)))
         (delete-other-windows))))
+
   (defun clean-empty-lines ()
     "Remove duplicate empty lines."
     (interactive)
@@ -82,7 +97,9 @@
             (goto-char (point-min))
             (while (re-search-forward "\n\n\n+" nil "move")
               (replace-match "\n\n")))))))
+
   (add-hook 'before-save-hook 'clean-empty-lines)
+
   (defun reload-theme ()
     (interactive)
     (let ((themes custom-enabled-themes))
@@ -90,15 +107,17 @@
         (mapc #'disable-theme themes)
         (mapc (lambda (theme) (load-theme theme t)) themes)
         (message "Reloaded themes: %S" themes))))
+
   (defun my-focus-new-client-frame (newly-created-frame)
     (when (daemonp)
       (select-frame-set-input-focus newly-created-frame)))
+
   (add-hook 'after-make-frame-functions #'my-focus-new-client-frame))
 
 (use-package autorevert
   :straight (:type built-in)
   :config
-  ;; Revert buffers automatically when underlying files are changed externally,
+  ;; Updates buffers automatically when underlying files are changed externally,
   ;; except for renames, deletes, and when the buffer has unsaved changes.
   (global-auto-revert-mode 1))
 
@@ -134,6 +153,7 @@
   (eglot-autoshutdown t)
   (eglot-events-buffer-size 0)
   (eglot-extend-to-xref nil)
+  ;; Many of these capabilities are already handled.
   (eglot-ignored-server-capabilities
    '(:hoverProvider
      :documentHighlightProvider
@@ -182,8 +202,8 @@
   :config
   (add-hook 'before-save-hook 'whitespace-cleanup))
 
-;; Packages
-;;-------------------------------------------------
+;;; External Packages
+;;;-------------------------------------------------
 
 (use-package ag)
 
@@ -456,7 +476,7 @@
     (lispy-different))
   (setq lispy-safe-delete t
         lispy-thread-last-macro "->>")
-  ;; Configure avy to Dvorak and not shift the damn text around.
+  ;; Configure avy to Dvorak and not shift the text around.
   (setq lispy-avy-style-paren 'at-full
         lispy-avy-style-symbol 'at-full
         lispy-avy-keys '(?a ?e ?o ?u ?h ?t ?n ?s)
@@ -569,15 +589,6 @@
         recentf-auto-cleanup 'never)
   (recentf-mode 1))
 
-;; (use-package selectrum
-;;   :config
-;;   (setq selectrum-should-sort-p t
-;;         selectrum-count-style 'current/matches)
-;;   ;; Enable cua bindings in minibuffer.
-;;   (define-key selectrum-minibuffer-map [prior] #'selectrum-previous-page)
-;;   (define-key selectrum-minibuffer-map [next] #'selectrum-next-page)
-;;   (selectrum-mode 1))
-
 ;; (use-package selectrum-prescient
 ;;   :config (selectrum-prescient-mode 1))
 
@@ -616,20 +627,7 @@
   (vertico-mode)
   :config
   (define-key vertico-map [next] #'vertico-scroll-up)
-  (define-key vertico-map [prior] #'vertico-scroll-down)
-
-  ;; Different scroll margin
-  ;; (setq vertico-scroll-margin 0)
-
-  ;; Show more candidates
-  ;; (setq vertico-count 20)
-
-  ;; Grow and shrink the Vertico minibuffer
-  ;; (setq vertico-resize t)
-
-  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-  ;; (setq vertico-cycle t)
-  )
+  (define-key vertico-map [prior] #'vertico-scroll-down))
 
 (use-package vertico-prescient
   :config
