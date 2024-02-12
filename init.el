@@ -7,32 +7,80 @@
 
 ;;; Code:
 
-;; Bootstrap straight.el if it's not already present.
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+;; Bootstrap elpaca.el
+(defvar elpaca-installer-version 0.6)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (< emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                 ((zerop (call-process "git" nil buffer t "clone"
+                                       (plist-get order :repo) repo)))
+                 ((zerop (call-process "git" nil buffer t "checkout"
+                                       (or (plist-get order :ref) "--"))))
+                 (emacs (concat invocation-directory invocation-name))
+                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                 ((require 'elpaca))
+                 ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (load "./elpaca-autoloads")))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
 
-;; Replace use-package with straight-use-package.
-(straight-use-package 'use-package)
-(setq straight-use-package-by-default t)
+;; Replace use-package
+(elpaca elpaca-use-package
+  (require 'elpaca-use-package)
+  (elpaca-use-package-mode)
+  (setq elpaca-use-package-by-default t)
+  ;; (setq use-package-always-defer t)
+  )
+
+(defmacro use-feature (name &rest args)
+  "Like `use-package' but accounting for asynchronous installation.
+  NAME and ARGS are in `use-package'."
+  (declare (indent defun))
+  `(use-package ,name
+     :ensure nil
+     ,@args))
+
+;; Transient requires seq 2.24, which is a higher version that what's built into
+;; emacs. We must build seq without errors.
+(defun +elpaca-unload-seq (e)
+  (and (featurep 'seq) (unload-feature 'seq t))
+  (elpaca--continue-build e))
+
+(defun +elpaca-seq-build-steps ()
+  (append (butlast (if (file-exists-p (expand-file-name "seq" elpaca-builds-directory))
+                       elpaca--pre-built-steps elpaca-build-steps))
+          (list '+elpaca-unload-seq 'elpaca--activate-package)))
+
+(elpaca `(seq :build ,(+elpaca-seq-build-steps)))
+
+;; Block until Elpaca processes current queue.
+(elpaca-wait)
 
 ;;; Built-in packages
 ;;;-------------------------------------------------
 
-(use-package emacs
-  :straight (:type built-in)
+(use-feature emacs
   :config
 
   ;; Add my local binaries
@@ -41,11 +89,6 @@
   (pixel-scroll-precision-mode 1)
 
   (setq-default fill-column 80)
-
-  ;; I use Clojure more often than elisp (default).
-  (setq inhibit-splash-screen t
-        initial-major-mode 'clojure-mode
-        initial-scratch-message ";; This *scratch* buffer is for Clojure.\n\n")
 
   (setq ring-bell-function 'ignore)
 
@@ -115,27 +158,32 @@
   (add-hook 'after-make-frame-functions #'my-focus-new-client-frame))
 
 (use-package autorevert
-  :straight (:type built-in)
+  :ensure nil
   :config
   ;; Updates buffers automatically when underlying files are changed externally,
   ;; except for renames, deletes, and when the buffer has unsaved changes.
   (global-auto-revert-mode 1))
 
-(use-package cus-edit
-  :straight (:type built-in)
+(use-feature cua-base
+  ;; Must be loaded after general so that C-c isn't clobbered.
+  :after (general)
+  :config
+  ;; Use undo-fu instead.
+  (setq cua-remap-control-z nil)
+  (cua-mode 1))
+
+(use-feature cus-edit
   :config
   ;; Loading the custom file undermines making this config declarative.
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory)))
 
-(use-package cus-face
-  :straight (:type built-in)
+(use-feature cus-face
   :config
   ;; These faces will be used by fixed-pitch mode and others.
   (custom-set-faces '(fixed-pitch ((t (:family "Monego" :height 105))))
                     '(variable-pitch ((t (:family "Crimson Pro" :height 140))))))
 
-(use-package eglot
-  :straight (:type built-in)
+(use-feature eglot
   :hook ((( clojure-mode clojurec-mode clojurescript-mode
             java-mode scala-mode)
           . eglot-ensure)
@@ -164,15 +212,13 @@
      :foldingRangeProvider))
   (eglot-stay-out-of '(yasnippet)))
 
-(use-package dired
-  :straight (:type built-in)
+(use-feature dired
   :hook (dired-mode . dired-hide-details-mode)
   :config
   ;; Press 'a' to open directories in the current buffer.
   (put 'dired-find-alternate-file 'disabled nil))
 
-(use-package files
-  :straight (:type built-in)
+(use-feature files
   :config
   (setq require-final-newline t)
   (setq confirm-kill-processes nil)
@@ -180,25 +226,30 @@
   (setq backup-directory-alist `((".*" . ,temporary-file-directory))
         auto-save-file-name-transforms `((".*" ,temporary-file-directory t))))
 
-(use-package paren
-  :straight (:type built-in)
+(use-feature flyspell
+  :config
+  (define-key flyspell-mode-map (kbd "C-.") nil)
+  ;; GNU Aspell was designed to replace Ispell (default).
+  (setq ispell-program-name "aspell"
+        ispell-extra-args '("--sug-mode=ultra"))
+  (add-hook 'text-mode-hook #'flyspell-mode)
+  (add-hook 'prog-mode-hook #'flyspell-prog-mode))
+
+(use-feature paren
   :config
   (setq show-paren-style 'mixed)
   (show-paren-mode 1))
 
-(use-package simple
-  :straight (:type built-in)
+(use-feature simple
   :config
   (column-number-mode 1)
   (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode))
 
-(use-package text-mode
-  :straight (:type built-in)
+(use-feature text-mode
   :config
   (add-hook 'text-mode-hook #'visual-line-mode))
 
-(use-package whitespace
-  :straight (:type built-in)
+(use-feature whitespace
   :config
   (add-hook 'before-save-hook 'whitespace-cleanup))
 
@@ -214,13 +265,12 @@
   (add-to-list 'aggressive-indent-excluded-modes 'js-mode))
 
 (use-package cape
-  :init
+  :config
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-elisp-block))
 
 (use-package centaur-tabs
-  :demand t
   :config
   ;; If centaur tabs isn't enabled first, icons will not render.
   (centaur-tabs-mode 1)
@@ -297,7 +347,11 @@ group by `centaur-tabs-get-group-name' with project name."
 
 (use-package clojure-mode
   :config
-  (setq clojure-align-forms-automatically t))
+  (setq clojure-align-forms-automatically t)
+  ;; I use Clojure more often than elisp (default).
+  (setq inhibit-splash-screen t
+        initial-major-mode 'clojure-mode
+        initial-scratch-message ";; This *scratch* buffer is for Clojure.\n\n"))
 
 (use-package clojure-mode-extra-font-locking
   ;; Unlike cider, this uses the builtin face for clojure.core.
@@ -311,43 +365,28 @@ group by `centaur-tabs-get-group-name' with project name."
 (use-package clojure-snippets)
 
 (use-package consult
+  :after orderless
+  :ensure (consult :host github :repo "minad/consult")
   :bind
   (("C-." . consult-imenu-multi))
   (("C-x b" . consult-buffer)))
 
 (use-package corfu
-  :straight (:files (:defaults "extensions/*")
-                    :includes (corfu-info corfu-history))
+  :ensure (corfu :host github :repo "minad/corfu" :files (:defaults "extensions/*"))
   :custom
   (corfu-auto t)
   (corfu-auto-delay 0)
   (corfu-auto-prefix 2)
   (corfu-popupinfo-delay 0.2)
-  :init
+  :config
   (global-corfu-mode)
   (corfu-echo-mode 1)
-  (corfu-popupinfo-mode 1)
-  :config
-  (defun corfu-enable-in-minibuffer ()
-    "Enable Corfu in the minibuffer."
-    (when (local-variable-p 'completion-at-point-functions)
-      ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
-      (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
-                  corfu-popupinfo-delay nil)
-      (corfu-mode 1))))
+  (corfu-popupinfo-mode 1))
 
 (use-package corfu-prescient
   :config
   (setq corfu-prescient-completion-styles '(orderless basic))
   (corfu-prescient-mode 1))
-
-(use-package cua-base
-  ;; Must be loaded after general so that C-c isn't clobbered.
-  :after (general)
-  :config
-  ;; Use undo-fu instead.
-  (setq cua-remap-control-z nil)
-  (cua-mode 1))
 
 (use-package dired-sidebar
   :bind (("C-x C-n" . dired-sidebar-toggle-sidebar))
@@ -364,8 +403,6 @@ group by `centaur-tabs-get-group-name' with project name."
              (";" . dired-subtree-remove)))
 
 (use-package doom-modeline
-  :demand t
-  :hook (after-init . doom-modeline-mode)
   :config
   (setq doom-modeline-buffer-modification-icon nil)
   (setq doom-modeline-buffer-file-name-style 'relative-from-project)
@@ -374,7 +411,8 @@ group by `centaur-tabs-get-group-name' with project name."
     '(misc-info minor-modes input-method process vcs checker major-mode))
   (defun setup-custom-doom-modeline ()
     (doom-modeline-set-modeline 'my-simple-line 'default))
-  (add-hook 'doom-modeline-mode-hook 'setup-custom-doom-modeline))
+  (add-hook 'doom-modeline-mode-hook 'setup-custom-doom-modeline)
+  (doom-modeline-mode 1))
 
 (use-package dumb-jump
   :config
@@ -386,15 +424,29 @@ group by `centaur-tabs-get-group-name' with project name."
    ("M-." . embark-dwim)
    ("C-h B" . embark-bindings))
 
-  :init
+  :config
   ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command))
 
 (use-package embark-consult
   :after (embark consult))
 
-(use-package fixed-pitch
-  :straight (:local-repo "~/.emacs.d/my-packages/fixed-pitch/")
+;; (use-package fixed-pitch
+;;   :ensure (:repo "~/.emacs.d/my-packages/fixed-pitch/")
+;;   :custom
+;;   (fixed-pitch-whitelist-hooks
+;;    '(cider-mode-hook
+;;      cider-docview-mode-hook
+;;      cider-popup-buffer-mode-hook
+;;      cider-test-report-mode-hook
+;;      cider-repl-mode-hook
+;;      conf-javaprop-mode-hook
+;;      conf-unix-mode-hook))
+;;   :config
+;;   (setq-default cursor-type 'bar))
+
+(use-feature fixed-pitch
+  :load-path "~/.emacs.d/my-packages/fixed-pitch/"
   :custom
   (fixed-pitch-whitelist-hooks
    '(cider-mode-hook
@@ -411,15 +463,6 @@ group by `centaur-tabs-get-group-name' with project name."
   :config (global-flycheck-mode 1))
 
 (use-package flycheck-package)
-
-(use-package flyspell
-  :config
-  (define-key flyspell-mode-map (kbd "C-.") nil)
-  ;; GNU Aspell was designed to replace Ispell (default).
-  (setq ispell-program-name "aspell"
-        ispell-extra-args '("--sug-mode=ultra"))
-  (add-hook 'text-mode-hook #'flyspell-mode)
-  (add-hook 'prog-mode-hook #'flyspell-prog-mode))
 
 (use-package general
   :config
@@ -535,7 +578,8 @@ group by `centaur-tabs-get-group-name' with project name."
   :bind (:map minibuffer-local-map
               ("M-A" . marginalia-cycle))
   ;; Marginalia's README specifies that activation must be eager.
-  :init
+  :defer 2
+  :config
   (marginalia-mode 1))
 
 (use-package markdown-mode
@@ -550,8 +594,6 @@ group by `centaur-tabs-get-group-name' with project name."
   ;; Leave all the markup but scale headers.
   (setq markdown-header-scaling nil
         markdown-fontify-code-blocks-natively t))
-
-(use-package modus-themes)
 
 (use-package multiple-cursors
   :bind (("C->" . mc/mark-next-like-this)
@@ -575,7 +617,6 @@ group by `centaur-tabs-get-group-name' with project name."
   (dired-mode . nerd-icons-dired-mode))
 
 (use-package orderless
-  :ensure t
   :custom
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
@@ -594,25 +635,31 @@ group by `centaur-tabs-get-group-name' with project name."
   :config (prescient-persist-mode 1))
 
 (use-package rainbow-mode
-  :hook prog-mode)
+  :ensure (rainbow-mode :host github :repo "emacsmirror/rainbow-mode")
+  :hook (prog-mode . rainbow-mode)
+  :config
+  (load-theme 'solo-jazz t)
+  (advice-add 'rainbow-turn-on :after #'solo-jazz-theme-rainbow-turn-on)
+  (advice-add 'rainbow-turn-off :after #'solo-jazz-theme-rainbow-turn-off))
 
 (use-package recentf
+  :ensure nil
   :config
   (setq recentf-max-saved-items 50
         recentf-auto-cleanup 'never)
   (recentf-mode 1))
 
-;; (use-package selectrum-prescient
-;;   :config (selectrum-prescient-mode 1))
-
 ;; (use-package solo-jazz-theme
-;;   :straight (:local-repo "~/.emacs.d/my-packages/solo-jazz-emacs-theme/")
+;;   :elpaca (:local-repo "~/.emacs.d/my-packages/solo-jazz-emacs-theme/")
 ;;   :config)
 ;; Adding the theme path allows me to hot-reload the theme.
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solo-jazz-emacs-theme/")
-(load-theme 'solo-jazz t)
-(advice-add 'rainbow-turn-on :after #'solo-jazz-theme-rainbow-turn-on)
-(advice-add 'rainbow-turn-off :after #'solo-jazz-theme-rainbow-turn-off)
+;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solo-jazz-emacs-theme/")
+;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/solo-jazz-emacs-theme/")
+(let ((basedir "~/.emacs.d/themes/"))
+  (dolist (f (directory-files basedir))
+    (if (and (not (or (equal f ".") (equal f "..")))
+             (file-directory-p (concat basedir f)))
+        (add-to-list 'custom-theme-load-path (concat basedir f)))))
 
 (use-package sotclojure
   :config
@@ -636,11 +683,10 @@ group by `centaur-tabs-get-group-name' with project name."
   (global-set-key (kbd "C-S-z") 'undo-fu-only-redo))
 
 (use-package vertico
-  :init
-  (vertico-mode)
   :config
-  (define-key vertico-map [next] #'vertico-scroll-up)
-  (define-key vertico-map [prior] #'vertico-scroll-down))
+  (define-key vertico-map [remap pixel-scroll-interpolate-down] 'vertico-scroll-up)
+  (define-key vertico-map [remap pixel-scroll-interpolate-up] 'vertico-scroll-down)
+  (vertico-mode))
 
 (use-package vertico-prescient
   :config
@@ -669,7 +715,7 @@ group by `centaur-tabs-get-group-name' with project name."
 (use-package which-key
   :config (which-key-mode 1))
 
-(use-package windmove
+(use-feature windmove
   :config
   (windmove-default-keybindings 'meta))
 
@@ -682,8 +728,6 @@ group by `centaur-tabs-get-group-name' with project name."
 (use-package xref)
 
 (use-package yaml-mode)
-
-(use-package zenburn-theme)
 
 (provide 'init)
 ;;; init.el ends here

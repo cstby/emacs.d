@@ -7,15 +7,27 @@
 
 ;; Increase garbage collection threshold temporarily to speed up initialization.
 (setq gc-cons-threshold most-positive-fixnum
-      gc-cons-percentage 0.6)
+      gc-cons-percentage 1)
 
-(add-hook 'emacs-startup-hook
+;; Skipping a bunch of regular expression searching should improve start time.
+(defvar default-file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
+
+;; Restore
+(add-hook 'elpaca-after-init-hook
           #'(lambda ()
-              (message "Emacs ready in %.2f seconds with %d garbage collections."
-                       (float-time (time-subtract after-init-time before-init-time))
-                       gcs-done)
-              (setq gc-cons-threshold 20000000
-                    gc-cons-percentage 0.1)))
+              (setq file-name-handler-alist default-file-name-handler-alist
+                    gc-cons-percentage 0.1
+                    gc-cons-threshold 100000000)
+              (message "Restored gc-cons-threshold & file-name-handler-alist")))
+
+(add-hook 'elpaca-after-init-hook
+          (lambda ()
+            (message "Emacs loaded in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract (current-time) before-init-time)))
+                     gcs-done)))
 
 ;; Disable unwanted user interface elements.
 (setq-default default-frame-alist
@@ -35,8 +47,17 @@
   (setq frame-title-format "")
   (setq ns-use-proxy-icon nil))
 
-;; Package loading is handled by straight.el.
+;; Implicitly resizing the Emacs frame adds to init time.
+(setq frame-inhibit-implied-resize t)
+
+;; Prevent instructions on how to close an emacsclient frame.
+(setq server-client-instructions nil)
+
+;; Package loading won't be handled by package.el
 (setq package-enable-at-startup nil)
+
+;; These native-comp errors can be safely ignored.
+(setq native-comp-async-report-warnings-errors nil)
 
 (provide 'early-init)
 ;;; early-init.el ends here

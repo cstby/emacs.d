@@ -6,13 +6,3 @@
 !early-init.el
 !init.el
 !README.md
-
-# Also, do not ignore the straight directory,
-!/straight
-
-# but ignore all files and directories within it,
-/straight/*
-
-# unless they are in the versions directory.
-!/straight/versions
-!/straight/versions/*
